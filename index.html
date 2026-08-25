@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xadrez</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL DE CONFIGURAÇÃO DE PARTIDA
+       Aparece ao iniciar o jogo ou clicar em "Nova partida"
+       Controlado por: ui/modal.js
+  ════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-icon" aria-hidden="true">♟</span>
+        <h1 id="modalTitle">Xadrez</h1>
+        <p>Configure sua partida</p>
+      </div>
+
+      <!-- Modo de jogo -->
+      <div class="modal-section">
+        <label class="section-label">Modo de jogo</label>
+        <div class="option-group" id="modeGroup" role="group" aria-label="Modo de jogo">
+          <button class="option-btn active" data-value="human" onclick="selectOption('modeGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon" aria-hidden="true">👥</span>
+            <span class="option-title">Dois jogadores</span>
+            <span class="option-sub">Jogar na mesma tela</span>
+          </button>
+          <button class="option-btn" data-value="ai" onclick="selectOption('modeGroup', this)" aria-pressed="false">
+            <span class="option-icon" aria-hidden="true">🤖</span>
+            <span class="option-title">Contra IA</span>
+            <span class="option-sub">Desafie o computador</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dificuldade da IA (visível apenas no modo IA) -->
+      <div class="modal-section" id="difficultySection" style="display:none">
+        <label class="section-label">Dificuldade</label>
+        <div class="option-group" id="difficultyGroup" role="group" aria-label="Dificuldade da IA">
+          <button class="option-btn active" data-value="easy" onclick="selectOption('difficultyGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon" aria-hidden="true">🌱</span>
+            <span class="option-title">Fácil</span>
+            <span class="option-sub">IA aleatória</span>
+          </button>
+          <button class="option-btn" data-value="hard" onclick="selectOption('difficultyGroup', this)"
+            aria-pressed="false">
+            <span class="option-icon" aria-hidden="true">🧠</span>
+            <span class="option-title">Difícil</span>
+            <span class="option-sub">Algoritmo Minimax</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Escolha da cor (visível apenas no modo IA) -->
+      <div class="modal-section" id="colorSection" style="display:none">
+        <label class="section-label">Suas peças</label>
+        <div class="option-group" id="colorGroup" role="group" aria-label="Cor das peças">
+          <button class="option-btn active" data-value="white" onclick="selectOption('colorGroup', this)"
+            aria-pressed="true">
+            <span class="option-icon piece-white" aria-hidden="true">♔</span>
+            <span class="option-title">Brancas</span>
+            <span class="option-sub">Você começa</span>
+          </button>
+          <button class="option-btn" data-value="black" onclick="selectOption('colorGroup', this)" aria-pressed="false">
+            <span class="option-icon piece-black" aria-hidden="true">♚</span>
+            <span class="option-title">Pretas</span>
+            <span class="option-sub">IA começa</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Animações -->
+      <div class="modal-section">
+        <label class="section-label">Opções</label>
+        <div class="toggle-row">
+          <span class="toggle-label">Animações de captura</span>
+          <label class="toggle" aria-label="Ativar animações de captura">
+            <input type="checkbox" id="toggleAnimations" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Destacar casas de risco</span>
+          <label class="toggle" aria-label="Ativar destaque de risco">
+            <input type="checkbox" id="toggleRisk" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-start" onclick="startGame()">
+        Iniciar partida
+        <span class="btn-arrow" aria-hidden="true">→</span>
+      </button>
+
+    </div>
+  </div><!-- /modal-overlay -->
+
+  <!-- ═══════════════════════════════════════════════════
+       APP — layout principal (sidebar + tabuleiro)
+       Oculto até startGame() ser chamado
+  ════════════════════════════════════════════════════ -->
+  <div class="app" id="app">
+
+    <!-- ─────────────────────────────────────────────────
+         NAV LATERAL
+         Tag semântica <nav> para menus de navegação/controle
+         Cada <section> dentro da nav é uma área colapsável
+         Controlado por: ui/nav.js
+    ──────────────────────────────────────────────────── -->
+    <nav class="sidebar" id="sidebar" aria-label="Painel do jogo">
+
+      <!-- Cabeçalho da sidebar -->
+      <div class="sidebar-logo">
+        <span class="logo-icon" aria-hidden="true">♟</span>
+        <span class="logo-text">Xadrez</span>
+        <!-- Botão hamburguer para telas pequenas (futuro) ver sobre onclick="toggleSidebar()" -->
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel"
+          title="Recolher painel" onclick="toggleSidebar()">
+          ‹
+        </button>
+      </div>
+
+      <!-- ── SEÇÃO: Partida atual ── -->
+      <section class="nav-section" id="sectionPartida">
+        <button class="nav-section-header" onclick="toggleSection('sectionPartida')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">⚔️</span>
+          <span>Partida</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-section-body">
+
+          <div class="info-card" id="turnCard">
+            <div class="info-label">Vez de</div>
+            <div class="info-value">
+              <span class="turn-piece" id="turnPiece" aria-hidden="true">♔</span>
+              <span id="turnName">Brancas</span>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Modo</div>
+            <div class="info-value" id="modeDisplay">—</div>
+          </div>
+
+          <div class="info-card" id="statusCard" style="display:none">
+            <div class="info-label">Situação</div>
+            <div class="info-value status-value" id="gameStatus">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Placar ── -->
+      <section class="nav-section" id="sectionPlacar">
+        <button class="nav-section-header" onclick="toggleSection('sectionPlacar')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">🏆</span>
+          <span>Placar</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-section-body">
+
+          <div class="score-board">
+            <div class="score-player" id="scoreWhite">
+              <div class="score-piece" aria-hidden="true">♔</div>
+              <div class="score-info">
+                <div class="score-name">Brancas</div>
+                <div class="score-num" id="numWhite">0</div>
+              </div>
+            </div>
+            <div class="score-divider" aria-hidden="true">×</div>
+            <div class="score-player" id="scoreBlack">
+              <div class="score-piece" aria-hidden="true">♚</div>
+              <div class="score-info">
+                <div class="score-name">Pretas</div>
+                <div class="score-num" id="numBlack">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Peças capturadas ── -->
+      <section class="nav-section" id="sectionCapturadas">
+        <button class="nav-section-header" onclick="toggleSection('sectionCapturadas')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">💀</span>
+          <span>Capturadas</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-section-body">
+          <div class="captured-label">Capturadas pelas brancas</div>
+          <div class="captured" id="capturedByWhite" aria-label="Peças capturadas pelas brancas"></div>
+
+          <div class="captured-label">Capturadas pelas pretas</div>
+          <div class="captured" id="capturedByBlack" aria-label="Peças capturadas pelas pretas"></div>
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: Histórico ── -->
+      <section class="nav-section" id="sectionHistorico">
+        <button class="nav-section-header" onclick="toggleSection('sectionHistorico')" aria-expanded="true">
+          <span class="nav-section-icon" aria-hidden="true">📜</span>
+          <span>Histórico</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="nav-section-body">
+          <div class="history" id="history" role="log" aria-live="polite">
+            <div class="history-empty">Nenhuma jogada ainda</div>
+          </div>
+        </div>
+      </section>
+
+     <!-- ── SEÇÃO: Configurações ── -->
+<section class="nav-section" id="sectionConfig">
+  <!-- O Cabeçalho (O que você tinha apagado sem querer) -->
+  <button class="nav-section-header" onclick="toggleSection('sectionConfig')" aria-expanded="false">
+    <span class="nav-section-icon" aria-hidden="true">⚙️</span>
+    <span>Configurações</span>
+    <span class="nav-chevron" aria-hidden="true">▾</span>
+  </button>
+
+  <!-- O Corpo (Onde ficam os botões) -->
+  <div class="nav-section-body">
+
+    <!-- Controle de Animações -->
+    <div class="toggle-row">
+      <span class="toggle-label">Animações</span>
+      <label class="toggle" aria-label="Ativar animações">
+        <input type="checkbox" id="configAnimations" checked
+               onchange="syncToggle(this, 'toggleAnimations')" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Controle de Risco -->
+    <div class="toggle-row">
+      <span class="toggle-label">Destaque de risco</span>
+      <label class="toggle" aria-label="Ativar destaque de risco">
+        <input type="checkbox" id="configRisk" checked
+               onchange="syncToggle(this, 'toggleRisk')" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Controle de Movimentos Válidos -->
+    <div class="toggle-row">
+      <span class="toggle-label">Mostrar movimentos</span>
+      <label class="toggle" aria-label="Mostrar movimentos válidos">
+        <input type="checkbox" id="configShowMoves" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Controle de Coordenadas -->
+    <div class="toggle-row">
+      <span class="toggle-label">Coordenadas (a-h, 1-8)</span>
+      <label class="toggle" aria-label="Mostrar coordenadas">
+        <input type="checkbox" id="configCoords" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+  </div><!-- /nav-section-body -->
+</section>
+
+      <!-- Rodapé da sidebar -->
+      <div class="sidebar-footer">
+        <button class="btn-secondary" onclick="openModal()" id="btnOpen">
+          ＋ Nova partida
+        </button>
+        <button class="btn-secondary" onclick="undoMove()" id="btnUndo" disabled>
+          ↩ Desfazer jogada
+        </button>
+      </div>
+
+    </nav><!-- /sidebar -->
+
+
+    <!-- ─────────────────────────────────────────────────
+         ÁREA DO JOGO — tabuleiro + coordenadas + status
+    ──────────────────────────────────────────────────── -->
+    <main class="game-area" id="gameArea">
+      <div class="board-wrapper" id="boardWrapper">
+
+        <div class="board-container">
+
+          <!-- Letras superiores (a–h) -->
+          <div class="coord-row coord-top" aria-hidden="true">
+            <div class="coord-cell"></div>
+            <div class="coord-cell">a</div>
+            <div class="coord-cell">b</div>
+            <div class="coord-cell">c</div>
+            <div class="coord-cell">d</div>
+            <div class="coord-cell">e</div>
+            <div class="coord-cell">f</div>
+            <div class="coord-cell">g</div>
+            <div class="coord-cell">h</div>
+            <div class="coord-cell"></div>
+          </div>
+
+          <div class="board-row-wrap">
+
+            <!-- Números esquerdos (8–1) -->
+            <div class="coord-col" aria-hidden="true">
+              <div class="coord-cell">8</div>
+              <div class="coord-cell">7</div>
+              <div class="coord-cell">6</div>
+              <div class="coord-cell">5</div>
+              <div class="coord-cell">4</div>
+              <div class="coord-cell">3</div>
+              <div class="coord-cell">2</div>
+              <div class="coord-cell">1</div>
+            </div>
+
+            <!-- CANVAS — tabuleiro principal -->
+            <canvas id="board" width="480" height="480" role="application" aria-label="Tabuleiro de xadrez">
+            </canvas>
+
+            <!-- Números direitos (8–1) -->
+            <div class="coord-col" aria-hidden="true">
+              <div class="coord-cell">8</div>
+              <div class="coord-cell">7</div>
+              <div class="coord-cell">6</div>
+              <div class="coord-cell">5</div>
+              <div class="coord-cell">4</div>
+              <div class="coord-cell">3</div>
+              <div class="coord-cell">2</div>
+              <div class="coord-cell">1</div>
+            </div>
+
+          </div>
+
+          <!-- Letras inferiores (a–h) -->
+          <div class="coord-row coord-bottom" aria-hidden="true">
+            <div class="coord-cell"></div>
+            <div class="coord-cell">a</div>
+            <div class="coord-cell">b</div>
+            <div class="coord-cell">c</div>
+            <div class="coord-cell">d</div>
+            <div class="coord-cell">e</div>
+            <div class="coord-cell">f</div>
+            <div class="coord-cell">g</div>
+            <div class="coord-cell">h</div>
+            <div class="coord-cell"></div>
+          </div>
+
+        </div><!-- /board-container -->
+
+        <!-- Mensagem de status abaixo do tabuleiro -->
+        <div class="board-status" id="boardStatus" role="status" aria-live="polite">
+          Selecione uma peça para começar
+        </div>
+
+      </div><!-- /board-wrapper -->
+    </main><!-- /game-area -->
+
+  </div><!-- /app -->
+
+  <!-- ─────────────────────────────────────────────────
+       SCRIPTS
+       type="module" habilita import/export entre arquivos
+       Apenas main.js é carregado aqui — ele importa o resto
+  ──────────────────────────────────────────────────── -->
+  <script type="module" src="main.js"></script>
+
+</body>
+
+</html>
