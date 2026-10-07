@@ -65,7 +65,7 @@ export class Piece {
     // se chamarmos em uma peça sem implementação.
     return [];
   }
-  
+
   // ── toString ───────────────────────────────────────────
   // Representação em texto da peça — útil para debug.
   // console.log(peca) vai mostrar algo legível.
@@ -74,11 +74,10 @@ export class Piece {
   }
 
   // ── verifica  o Ataque ───────────────────────────────────────────
-getAttackedSquares(row, col, grid) {
-  // Por padrão, para a maioria das peças, 
-  // as casas atacadas são seus movimentos válidos.
-  return this.getValidMoves(row, col, grid);
-}
-
+  getAttackedSquares(row, col, grid) {
+    // Por padrão, para a maioria das peças, 
+    // as casas atacadas são seus movimentos válidos.
+    return this.getValidMoves(row, col, grid);
+  }
 
 }

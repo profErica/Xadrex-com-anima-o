@@ -81,10 +81,16 @@ export function mesmaEquipe(pecaA, pecaB) {
 //       Por que um simples grid.slice() não seria suficiente
 //       para um array 2D?
 export function clonarTabuleiro(grid) {
-  return grid.map(row =>
-    row.map(peca =>
-      peca ? { ...peca } : null
-    )
+return grid.map(row =>
+    row.map(peca => {
+      if (!peca) return null;
+      // Cria um novo objeto com o MESMO protótipo da peça original
+      // (preserva os métodos da classe: getValidMoves, getAttackedSquares, etc.)
+      return Object.assign(
+        Object.create(Object.getPrototypeOf(peca)),
+        peca
+      );
+    })
   );
 }
 

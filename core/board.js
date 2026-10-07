@@ -198,9 +198,11 @@ export class Board {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const pecaInimiga = this.grid[r][c];
+        
+        // Se a peça existe e é do adversário
+        if (pecaInimiga && pecaInimiga.color !== corDaPeca && typeof pecaInimiga.getAttackedSquares === 'function') {
 
-        if (pecaInimiga && pecaInimiga.color !== corDaPeca) {
-          // MUDANÇA AQUI: usamos getAttackedSquares
+          // TODAS as peças agora possuem getAttackedSquares graças ao piece.js
           const casasAmeacadas = pecaInimiga.getAttackedSquares(r, c, this.grid);
 
           if (casasAmeacadas.some(m => m.row === row && m.col === col)) {
@@ -232,4 +234,59 @@ export class Board {
     // O Rei está em xeque se a casa dele "está sendo atacada"
     return this.estaSendoAtacada(reiPos.row, reiPos.col, cor);
   }
+
+  // ── temMovimentosLegais ────────────────────────────────
+  // Verifica se o jogador da cor especificada ainda tem 
+  // alguma jogada possível que não o deixe em Xeque.
+  temMovimentosLegais(cor) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const peca = this.grid[r][c];
+
+        // Verifica apenas peças da cor do turno
+        if (peca && peca.color === cor) {
+          const movimentos = peca.getValidMoves(r, c, this.grid);
+
+          for (const move of movimentos) {
+            // Simulamos o movimento em um tabuleiro clonado
+            const boardSimulado = this.clonar();
+            boardSimulado.moverPeca(r, c, move.row, move.col);
+
+            // Se após o movimento o Rei NÃO estiver em xeque, 
+            // encontramos um movimento legal!
+            if (!boardSimulado.estaEmXeque(cor)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // ── obterMovimentosLegais ────────────────────────────────
+// Retorna apenas os movimentos de uma peça específica que NÃO deixam
+// o próprio Rei em xeque (filtra movimentos que expõem o Rei, como
+// peças "presas" bloqueando um ataque).
+obterMovimentosLegais(row, col) {
+  const peca = this.grid[row][col];
+  if (!peca) return [];
+
+  const movimentosBrutos = peca.getValidMoves(row, col, this.grid);
+  const movimentosLegais = [];
+
+  for (const move of movimentosBrutos) {
+    // Simulamos o movimento em um tabuleiro clonado
+    const boardSimulado = this.clonar();
+    boardSimulado.moverPeca(row, col, move.row, move.col);
+
+    // Só é legal se o Rei da MESMA COR da peça não fica em xeque
+    if (!boardSimulado.estaEmXeque(peca.color)) {
+      movimentosLegais.push(move);
+    }
+  }
+
+  return movimentosLegais;
 }
+}
+

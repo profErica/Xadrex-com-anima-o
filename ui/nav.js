@@ -197,11 +197,45 @@ window.toggleSidebar = function() {
 // Garante que, ao abrir o jogo, os toggles da sidebar 
 // reflitam o que foi escolhido no modal.
 export function sincronizarConfiguracoesIniciais(config) {
-  const toggleAnim = document.getElementById('configAnimations');
-  const toggleRisk = document.getElementById('configRisk');
-  
-  if (toggleAnim) toggleAnim.checked = config.animacoes;
-  // O risco geralmente começa ligado por padrão se você configurou assim
-  if (toggleRisk) toggleRisk.checked = true; 
+  const elAnim = document.getElementById('configAnimations');
+  if (elAnim) elAnim.checked = config.animacoes;
+
+  // 2. Sincroniza Risco
+  const elRisk = document.getElementById('configRisk');
+  if (elRisk) elRisk.checked = config.risco;
+
+    const elMoves = document.getElementById('configShowMoves');
+  if (elMoves) elMoves.checked = config.moves;
+
+
+    // 4. Sincroniza Coordenadas e aplica o efeito visual de esconder/mostrar
+  const elCoords = document.getElementById('configCoords');
+  if (elCoords) {
+      elCoords.checked = config.coords;
+      const coordsElements = document.querySelectorAll('.coord-row, .coord-col');
+      coordsElements.forEach(el => el.style.opacity = config.coords ? '1' : '0');
+  }
+
+   // --- FIM DA SINCRONIZAÇÃO VISUAL ---
+
+  // 5. Sincroniza Alertas de Coach (Comportamento)
+  const elAlerts = document.getElementById('configAlerts');
+  if (elAlerts) elAlerts.checked = config.alerts;
 }
 
+
+
+
+
+/* // 3. Sincroniza Mostrar Movimentos
+  const elMoves = document.getElementById('configShowMoves');
+  if (elMoves) elMoves.checked = config.moves;
+
+  // 4. Sincroniza Coordenadas
+  const elCoords = document.getElementById('configCoords');
+  if (elCoords) {
+      elCoords.checked = config.coords;
+      // Força a atualização visual das coordenadas no tabuleiro
+      const coordsElements = document.querySelectorAll('.coord-row, .coord-col');
+      coordsElements.forEach(el => el.style.opacity = config.coords ? '1' : '0');
+  }*/

@@ -22,9 +22,9 @@
 // Referências aos elementos do DOM
 // Buscamos uma vez e guardamos — mais eficiente do que
 // chamar getElementById toda vez que precisamos
-const elModal           = document.getElementById('modal');
+const elModal = document.getElementById('modal');
 const elDifficultySection = document.getElementById('difficultySection');
-const elColorSection    = document.getElementById('colorSection');
+const elColorSection = document.getElementById('colorSection');
 
 // ── abrirModal ────────────────────────────────────────────
 // Exibe o modal — remove a classe 'hidden' e garante
@@ -66,23 +66,26 @@ export function lerConfiguracoes() {
   // querySelector busca o primeiro elemento que corresponde
   // ao seletor CSS — aqui, o botão com classe 'active' dentro
   // de cada grupo de opções
-  const modoBtn       = document.querySelector('#modeGroup .option-btn.active');
+  const modoBtn = document.querySelector('#modeGroup .option-btn.active');
   const dificuldadeBtn = document.querySelector('#difficultyGroup .option-btn.active');
-  const corBtn        = document.querySelector('#colorGroup .option-btn.active');
-  const animacoesEl   = document.getElementById('toggleAnimations');
+  const corBtn = document.querySelector('#colorGroup .option-btn.active');
+  const animacoesEl = document.getElementById('toggleAnimations');
+  const riscoEl = document.getElementById('toggleRisk');
+  const alertsEl = document.getElementById('toggleAlerts');
 
   return {
     // data-value é um atributo HTML personalizado —
     // permite guardar dados extras em elementos HTML
-    modo:        modoBtn?.dataset.value        || 'human',
+    modo: modoBtn?.dataset.value || 'human',
     dificuldade: dificuldadeBtn?.dataset.value || 'easy',
-    corJogador:  corBtn?.dataset.value         || 'white',
+    corJogador: corBtn?.dataset.value || 'white',
 
     // .checked é a propriedade do checkbox — true se marcado
-    animacoes:   animacoesEl?.checked ?? true,
+    animacoes: animacoesEl?.checked ?? true,
+    risco: riscoEl?.checked ?? true,   
+    alerts: alertsEl?.checked ?? true,
   };
 }
-
 
 // ── selectOption ──────────────────────────────────────────
 // Chamada pelos botões do modal via onclick no HTML.
@@ -96,7 +99,7 @@ export function lerConfiguracoes() {
 //
 // TODO: existe uma forma melhor de fazer isso sem usar window?
 //       Pesquise: "addEventListener vs onclick inline"
-window.selectOption = function(grupoId, btnClicado) {
+window.selectOption = function (grupoId, btnClicado) {
   const grupo = document.getElementById(grupoId);
   grupo.querySelectorAll('.option-btn').forEach(btn => {
     btn.classList.remove('active');
@@ -110,6 +113,6 @@ window.selectOption = function(grupoId, btnClicado) {
   if (grupoId === 'modeGroup') {
     const modoIA = btnClicado.dataset.value === 'ai';
     elDifficultySection.style.display = modoIA ? 'block' : 'none';
-    elColorSection.style.display      = modoIA ? 'block' : 'none';
+    elColorSection.style.display = modoIA ? 'block' : 'none';
   }
 };

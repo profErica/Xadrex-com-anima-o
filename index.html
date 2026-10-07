@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Jacquard+24&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -81,7 +82,7 @@
         </div>
       </div>
 
-      <!-- Animações -->
+      <!-- Animações e outras opções -->
       <div class="modal-section">
         <label class="section-label">Opções</label>
         <div class="toggle-row">
@@ -96,6 +97,33 @@
           <span class="toggle-label">Destacar casas de risco</span>
           <label class="toggle" aria-label="Ativar destaque de risco">
             <input type="checkbox" id="toggleRisk" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- NOVO: Mostrar movimentos -->
+        <div class="toggle-row">
+          <span class="toggle-label">Mostrar movimentos válidos</span>
+          <label class="toggle">
+            <input type="checkbox" id="toggleShowMoves" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- NOVO: Coordenadas -->
+        <div class="toggle-row">
+          <span class="toggle-label">Mostrar coordenadas (a-h, 1-8)</span>
+          <label class="toggle">
+            <input type="checkbox" id="toggleCoords" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- NOVO: Mensagens de aviso -->
+        <div class="toggle-row">
+          <span class="toggle-label">Alertas de auxílio (Coach)</span>
+          <label class="toggle">
+            <input type="checkbox" id="toggleAlerts" checked />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -128,8 +156,8 @@
         <span class="logo-icon" aria-hidden="true">♟</span>
         <span class="logo-text">Xadrez</span>
         <!-- Botão hamburguer para telas pequenas (futuro) ver sobre onclick="toggleSidebar()" -->
-        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel"
-          title="Recolher painel" onclick="toggleSidebar()">
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Recolher painel" title="Recolher painel"
+          onclick="toggleSidebar()">
           ‹
         </button>
       </div>
@@ -222,58 +250,65 @@
         </div>
       </section>
 
-     <!-- ── SEÇÃO: Configurações ── -->
-<section class="nav-section" id="sectionConfig">
-  <!-- O Cabeçalho (O que você tinha apagado sem querer) -->
-  <button class="nav-section-header" onclick="toggleSection('sectionConfig')" aria-expanded="false">
-    <span class="nav-section-icon" aria-hidden="true">⚙️</span>
-    <span>Configurações</span>
-    <span class="nav-chevron" aria-hidden="true">▾</span>
-  </button>
+      <!-- ── SEÇÃO: Configurações ── -->
+      <section class="nav-section" id="sectionConfig">
+        <!-- O Cabeçalho (O que você tinha apagado sem querer) -->
+        <button class="nav-section-header" onclick="toggleSection('sectionConfig')" aria-expanded="false">
+          <span class="nav-section-icon" aria-hidden="true">⚙️</span>
+          <span>Configurações</span>
+          <span class="nav-chevron" aria-hidden="true">▾</span>
+        </button>
 
-  <!-- O Corpo (Onde ficam os botões) -->
-  <div class="nav-section-body">
+        <!-- O Corpo (Onde ficam os botões) -->
+        <div class="nav-section-body">
 
-    <!-- Controle de Animações -->
-    <div class="toggle-row">
-      <span class="toggle-label">Animações</span>
-      <label class="toggle" aria-label="Ativar animações">
-        <input type="checkbox" id="configAnimations" checked
-               onchange="syncToggle(this, 'toggleAnimations')" />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+          <!-- Controle de Animações -->
+          <div class="toggle-row">
+            <span class="toggle-label">Animações</span>
+            <label class="toggle" aria-label="Ativar animações">
+              <input type="checkbox" id="configAnimations" checked onchange="syncToggle(this, 'toggleAnimations')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
 
-    <!-- Controle de Risco -->
-    <div class="toggle-row">
-      <span class="toggle-label">Destaque de risco</span>
-      <label class="toggle" aria-label="Ativar destaque de risco">
-        <input type="checkbox" id="configRisk" checked
-               onchange="syncToggle(this, 'toggleRisk')" />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+          <!-- Controle de Risco -->
+          <div class="toggle-row">
+            <span class="toggle-label">Destaque de risco</span>
+            <label class="toggle" aria-label="Ativar destaque de risco">
+              <input type="checkbox" id="configRisk" checked onchange="syncToggle(this, 'toggleRisk')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
 
-    <!-- Controle de Movimentos Válidos -->
-    <div class="toggle-row">
-      <span class="toggle-label">Mostrar movimentos</span>
-      <label class="toggle" aria-label="Mostrar movimentos válidos">
-        <input type="checkbox" id="configShowMoves" checked />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+          <!-- Controle de Movimentos Válidos -->
+          <div class="toggle-row">
+            <span class="toggle-label">Mostrar movimentos</span>
+            <label class="toggle" aria-label="Mostrar movimentos válidos">
+              <input type="checkbox" id="configShowMoves" checked onchange="syncToggle(this, 'toggleShowMoves')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
 
-    <!-- Controle de Coordenadas -->
-    <div class="toggle-row">
-      <span class="toggle-label">Coordenadas (a-h, 1-8)</span>
-      <label class="toggle" aria-label="Mostrar coordenadas">
-        <input type="checkbox" id="configCoords" checked />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-    
-  </div><!-- /nav-section-body -->
-</section>
+          <!-- Controle de Coordenadas -->
+          <div class="toggle-row">
+            <span class="toggle-label">Coordenadas (a-h, 1-8)</span>
+            <label class="toggle" aria-label="Mostrar coordenadas">
+              <input type="checkbox" id="configCoords" checked onchange="syncToggle(this, 'toggleCoords')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Alertas de auxílio -->
+          <div class="toggle-row">
+            <span class="toggle-label">Alertas de auxílio</span>
+            <label class="toggle">
+              <input type="checkbox" id="configAlerts" checked onchange="syncToggle(this, 'toggleAlerts')" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+        </div><!-- /nav-section-body -->
+      </section>
 
       <!-- Rodapé da sidebar -->
       <div class="sidebar-footer">
@@ -364,9 +399,30 @@
         </div>
 
       </div><!-- /board-wrapper -->
+
+      <!-- OVERLAY DE XEQUE-MATE -->
+      <div id="xequeMateOverlay" class="xeque-mate-overlay" aria-hidden="true">
+        <div class="xeque-mate-conteudo">
+          <img id="imagemXequeMate" src="assets/xequemate.webp" alt="Xeque-mate" />
+
+          <div id="textoXequeMate" class="texto-xeque-mate">
+            XEQUE-MATE
+          </div>
+
+          <div id="subtextoXequeMate" class="subtexto-xeque-mate">
+            A partida terminou.
+          </div>
+        </div>
+        <audio id="somXequeMate1" src="assets/metralha.mp3" preload="auto"></audio>
+        <audio id="somXequeMate2" src="assets/soco.mp3" preload="auto"></audio>
+        <audio id="somXequeMate3" src="assets/grito.mp3" preload="auto"></audio>
+      </div>
+
     </main><!-- /game-area -->
 
   </div><!-- /app -->
+
+
 
   <!-- ─────────────────────────────────────────────────
        SCRIPTS
