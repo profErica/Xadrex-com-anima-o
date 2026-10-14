@@ -207,7 +207,6 @@ export function sincronizarConfiguracoesIniciais(config) {
     const elMoves = document.getElementById('configShowMoves');
   if (elMoves) elMoves.checked = config.moves;
 
-
     // 4. Sincroniza Coordenadas e aplica o efeito visual de esconder/mostrar
   const elCoords = document.getElementById('configCoords');
   if (elCoords) {
@@ -227,15 +226,3 @@ export function sincronizarConfiguracoesIniciais(config) {
 
 
 
-/* // 3. Sincroniza Mostrar Movimentos
-  const elMoves = document.getElementById('configShowMoves');
-  if (elMoves) elMoves.checked = config.moves;
-
-  // 4. Sincroniza Coordenadas
-  const elCoords = document.getElementById('configCoords');
-  if (elCoords) {
-      elCoords.checked = config.coords;
-      // Força a atualização visual das coordenadas no tabuleiro
-      const coordsElements = document.querySelectorAll('.coord-row, .coord-col');
-      coordsElements.forEach(el => el.style.opacity = config.coords ? '1' : '0');
-  }*/

@@ -73,6 +73,10 @@ export function lerConfiguracoes() {
   const riscoEl = document.getElementById('toggleRisk');
   const alertsEl = document.getElementById('toggleAlerts');
 
+  //novo
+  const movesEl = document.getElementById('toggleShowMoves');
+  const coordsEl = document.getElementById('toggleCoords');
+
   return {
     // data-value é um atributo HTML personalizado —
     // permite guardar dados extras em elementos HTML
@@ -82,8 +86,12 @@ export function lerConfiguracoes() {
 
     // .checked é a propriedade do checkbox — true se marcado
     animacoes: animacoesEl?.checked ?? true,
-    risco: riscoEl?.checked ?? true,   
+    risco: riscoEl?.checked ?? true,
     alerts: alertsEl?.checked ?? true,
+
+    //novo
+    moves: movesEl?.checked ?? true,
+    coords: coordsEl?.checked ?? true,
   };
 }
 

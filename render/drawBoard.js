@@ -39,7 +39,7 @@ const COR_CASA_ESCURA = '#6f3d14';
 const COR_SELECIONADO = 'rgba(255, 185, 30,  0.72)'; // amarelo
 const COR_MOVIMENTO = 'rgba(90,  170,  90,  0.45)'; // verde
 const COR_PONTO_CENTRO = 'rgba(0,   0,    0,   0.18)'; // ponto escuro
-const COR_RISK =  'rgba(255, 59, 48, 0.4)';
+const COR_RISK = 'rgba(255, 59, 48, 0.4)';
 const COR_RISK_POINT = 'rgba(150, 0, 0, 0.5)';
 
 
@@ -92,16 +92,16 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMo
   );
 
   // ── Destaque dos movimentos válidos ─────────────────
-// Dentro do drawBoard.js, no loop de movimentosValidos:
+  // Dentro do drawBoard.js, no loop de movimentosValidos:
 
- movimentosValidos.forEach((m) => {
+  movimentosValidos.forEach((m) => {
     const estiloCores = getComputedStyle(document.documentElement);
-    
+
     // Pegamos as cores do CSS
     const corVerdeNormal = estiloCores.getPropertyValue('--highlight-move');
-    const corSuaCaptura  = estiloCores.getPropertyValue('--highlight-capture');
-    const corRisco       = estiloCores.getPropertyValue('--highlight-risk');  // Vermelho
-    const corAlerta      = estiloCores.getPropertyValue('--highlight-alert'); // Laranja
+    const corSuaCaptura = estiloCores.getPropertyValue('--highlight-capture');
+    const corRisco = estiloCores.getPropertyValue('--highlight-risk');  // Vermelho
+    const corAlerta = estiloCores.getPropertyValue('--highlight-alert'); // Laranja
 
     let deveDesenhar = false;
     let corParaPintar = "";
@@ -158,7 +158,7 @@ export function desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMo
 //
 // TODO: quando tivermos as animações (render/animations.js),
 //       esta função vai pular peças que estão sendo animadas.
-export function desenharPecas(ctx, grid) {
+export function desenharPecas(ctx, grid, pecaAnimada = null) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -166,6 +166,18 @@ export function desenharPecas(ctx, grid) {
     for (let col = 0; col < 8; col++) {
       const peca = grid[row][col];
       if (!peca) continue;  // casa vazia — pula
+
+      // Durante uma animação, não desenhamos a peça
+      // na posição final. Ela será desenhada separadamente
+      // na posição intermediária.
+      if (
+        pecaAnimada &&
+        peca === pecaAnimada.peca &&
+        row === pecaAnimada.paraRow &&
+        col === pecaAnimada.paraCol
+      ) {
+        continue;
+      }
 
       const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
       const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
@@ -194,6 +206,38 @@ export function desenharPecas(ctx, grid) {
       ctx.shadowBlur = 0;
     }
   }
+
+  // Se existe uma peça sendo animada,
+  // desenhamos ela na posição intermediária.
+  if (pecaAnimada) {
+
+    const { peca, row, col } = pecaAnimada;
+
+    const x = col * TAMANHO_CASA + TAMANHO_CASA / 2;
+    const y = row * TAMANHO_CASA + TAMANHO_CASA / 2;
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 3;
+
+    ctx.font = `${TAMANHO_CASA * 0.72}px serif`;
+    ctx.fillStyle = peca.color === 'white'
+      ? '#ffffff'
+      : '#1a0d00';
+
+    ctx.fillText(peca.symbol, x, y + 1);
+
+    if (peca.color === 'white') {
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(52, 36, 7, 0.5)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeText(peca.symbol, x, y + 1);
+    }
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  }
 }
 
 // ── renderizar ────────────────────────────────────────────
@@ -212,8 +256,13 @@ export function renderizar(ctx, grid, selecionado, movimentosValidos, mostrarMov
   desenharTabuleiro(ctx);
   // Chamamos sempre o desenharDestaques, pois ele mesmo vai decidir 
   // o que pintar com base nos dois switches (mostrarMovimentos e mostrarRisco)
-  desenharDestaques(ctx, selecionado, movimentosValidos, mostrarMovimentos, mostrarRisco);
-  desenharPecas(ctx, grid);
+  desenharDestaques(ctx,
+    selecionado,
+    movimentosValidos,
+    mostrarMovimentos,
+    mostrarRisco,
+    pecaAnimada = null);
+  desenharPecas(ctx, grid, pecaAnimada);
 }
 
 export function desenharAvisoXeque(ctx, emXeque) {
